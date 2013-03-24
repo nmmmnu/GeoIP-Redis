@@ -1,0 +1,57 @@
+
+<p>GeoIP is excelent IP to location database provided from <a href="http://www.maxmind.com/" rel="nofollow">MaxMind</a>.</p>
+
+<p>The GeoIP databases have both free and paid versions. They also come in different versions - GeoIP to country, GeoIP to city and others.</p>
+
+<p>The databases also come in several formats:</p>
+
+<ul>
+<li>Downloadable binary files with API for many programming languages, including both PHP and Pyrhon.</li>
+<li>Downloadable CSV files - usually people import them in MySQL, Postgres or different RDBMS.</li>
+</ul>
+
+<p>Surprisingly, the performance of SQL based GeoIP is often faster than binary file provided, 
+but most people still prefer to use binary format, because keeping database up to date is easy.</p>
+
+<p>The other problem of SQL based GeoIP solutions is that the database (MySQL), is the non scallable part of the website.
+So on busy websites, is much better to keep working with binary file instead to "bloating" the database.
+For best performance one can plase GeoIP data file on RAM-disk such <b>/dev/shm</b>.</p>
+
+<h3>So whats about NoSQL then?</h3>
+
+<p>Puting GeoIP in key value store is difficult task, because you need to check the IP against each range.</p>
+
+<p>Luckaly for us, Redis offering sorted sets, where you can search by score.</p>
+
+<p>So it is possible to build single sorted set and to put all IP ranges there. 
+Because the values of the sorted set are unique, we need to add "uniqual" component to it - e.g. some sequential number.</p>
+
+<p>The client must do <b>zrangebyscore()</b>, using numerical IP as score.
+Then we can store all data as the value, including unique copmonent.</p>
+
+<p>For country based database we can store the two letter code there, without any significant memory usage - something like "US:1234",
+but we decided to store all data in external hash key ("US:1234": { code: US, name: USA }).<br />
+Doing it in this way it was possible later to import GeoIPCity, without any Redis schema changes.<br />
+This hash key also allow us to use same client code, without any modifications.</p>
+
+<p>The memory usage on 64bit Redis was as following:</p>
+
+<table border="1">
+	<tr><td>GeoIP Country	</td><td>without hashes	</td><td>30 MB</td></td>
+	<tr><td>GeoIP Country	</td><td>with hashes	</td><td>35 MB</td></tr>
+	<tr><td>GeoIP City	</td><td>whit hashes	</td><td>500 MB</td></tr>
+</table>
+
+<p>Because programming code includes:</p>
+ 
+<ul>
+	<li>Importer for GeoIP Country, written in Python.</li>
+	<li>Importer for GeoIP City, written in Python.</li>
+	<li>Client code for Python.</li>
+	<li>Client code for PHP.</li>
+</ul>
+ 
+ <p>...we stored everything in Github repository here:<br />
+ <a href="https://github.com/nmmmnu/GeoIP-Redis">https://github.com/nmmmnu/GeoIP-Redis</a></p>
+
+
