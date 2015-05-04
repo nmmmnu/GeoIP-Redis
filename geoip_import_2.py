@@ -42,7 +42,7 @@ for line in open(filename):
 	count = count + 1
 	if count % 1000 == 0 :
 		print "Imported %8d" % count
-		break
+		#break
 
 count2 = count
 
