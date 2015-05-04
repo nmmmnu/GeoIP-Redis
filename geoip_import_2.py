@@ -73,19 +73,19 @@ for line in open(filename_loc):
 	
 	dic["id"] = x[id]
 	
-	if len(x) >= code :
+	if len(x) > code :
 		dic["code"]		= x[code]
 
-	if len(x) >= country :
+	if len(x) > country :
 		dic["country"]		= x[country]
 
-	if len(x) >= state_code :
+	if len(x) > state_code :
 		dic["state_code"]	= x[state_code]
 
-	if len(x) >= state :
+	if len(x) > state :
 		dic["state"]		= x[state]
 
-	if len(x) >= city :
+	if len(x) > city :
 		dic["city"]		= x[city]
 
 	key = x[id]
