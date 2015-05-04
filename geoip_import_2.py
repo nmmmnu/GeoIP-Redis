@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
-filename     = "data/GeoLite2-Country-CSV_20150407/GeoLite2-Country-Blocks-IPv4.csv"
-filename_loc = "data/GeoLite2-Country-CSV_20150407/GeoLite2-Country-Locations-en.csv"
+filename     = "data/GeoLite2-City-CSV_20150407/GeoLite2-City-Blocks-IPv4.csv"
+filename_loc = "data/GeoLite2-City-CSV_20150407/GeoLite2-City-Locations-en.csv"
 
 from redis import Redis
 r = Redis("localhost")
@@ -42,6 +42,7 @@ for line in open(filename):
 	count = count + 1
 	if count % 1000 == 0 :
 		print "Imported %8d" % count
+		break
 
 count2 = count
 
@@ -58,19 +59,36 @@ for line in open(filename_loc):
 	if x[0] == "geoname_id" :
 		continue
 
-	(id, lang, continent, continent2, code, country) = x
-		
+	for i in range(len(x)) :
+		x[i] = x[i].replace("\"", "")
+
+	id		= 0
+	code		= 4
+	country		= 5
+	state_code	= 6
+	state		= 7
+	city		= 10
+	
 	dic = {}
 	
-	dic["id"] = id
+	dic["id"] = x[id]
 	
-	if code :
-		dic["code"]	= code
+	if len(x) >= code :
+		dic["code"]		= x[code]
 
-	if country :
-		dic["country"]	= country
+	if len(x) >= country :
+		dic["country"]		= x[country]
 
-	key = id
+	if len(x) >= state_code :
+		dic["state_code"]	= x[state_code]
+
+	if len(x) >= state :
+		dic["state"]		= x[state]
+
+	if len(x) >= city :
+		dic["city"]		= x[city]
+
+	key = x[id]
 
 	r.hmset("geoip:" + key, dic)
 

@@ -1,4 +1,4 @@
 data/
-dump.rdb
+*.rdb
 *.pyc
 
